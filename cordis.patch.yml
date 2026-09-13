@@ -1,0 +1,14 @@
+# Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT
+- insert:
+    - id: adaptive-reasoning
+      name: dsh-adaptive-reasoning
+      config:
+        presets: [augmentor-linux-product]
+        routes:
+          - provider: mx-5090-tray
+            model: Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k-dual
+            efforts:
+              off: 'off'
+              low: low
+              medium: medium
+              high: xhigh

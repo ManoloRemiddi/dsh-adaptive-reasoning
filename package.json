@@ -1,0 +1,37 @@
+{
+  "name": "dsh-adaptive-reasoning",
+  "version": "0.2.0",
+  "description": "Conservative per-request reasoning selection for DeepSeek Harness, with no classifier model calls",
+  "type": "module",
+  "main": "src/index.js",
+  "license": "MIT",
+  "author": "Manolo Remiddi",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "docs",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:integration": "node test/integration.mjs",
+    "test:live": "node test/live-suite.mjs",
+    "report": "node scripts/report.mjs",
+    "test:install": "node test/install-proof.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "4.0.2",
+    "@deepseek-ai/dsh-agent": "0.1.5-rc.1"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
