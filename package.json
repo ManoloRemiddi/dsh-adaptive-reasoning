@@ -33,5 +33,18 @@
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ManoloRemiddi/dsh-adaptive-reasoning.git"
+  },
+  "homepage": "https://github.com/ManoloRemiddi/dsh-adaptive-reasoning#readme",
+  "bugs": {
+    "url": "https://github.com/ManoloRemiddi/dsh-adaptive-reasoning/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "reasoning"
+  ]
 }

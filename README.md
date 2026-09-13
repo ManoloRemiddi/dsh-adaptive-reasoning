@@ -34,6 +34,20 @@ through. Provider, model, sampling and output allowances are preserved.
 
 ## Installation
 
+[Download the 0.2.0 preview](https://github.com/ManoloRemiddi/dsh-adaptive-reasoning/releases/tag/v0.2.0)
+or install its ready-made package:
+
+```sh
+dsh plugin --profile web add https://github.com/ManoloRemiddi/dsh-adaptive-reasoning/releases/download/v0.2.0/dsh-adaptive-reasoning-0.2.0.tgz --ignore-scripts --config.auto-install-peers=false
+```
+
+**Configuration is required on other installations.** The shipped allowlist is
+specific to the tested Augmentor preset and Qwen route. It does nothing for other
+presets/models until configured. See [setup for your own model](docs/SETUP.md).
+This is a preview, not a universal automatic difficulty estimator.
+
+To package a source checkout instead:
+
 ```sh
 npm pack
 dsh plugin --profile web add /absolute/path/dsh-adaptive-reasoning-0.2.0.tgz --offline --ignore-scripts --config.auto-install-peers=false
@@ -114,3 +128,10 @@ outputs are excluded from the distributable package.
 
 See [0.2 validation](docs/VALIDATION-0.2.md),
 [initial research](docs/RESEARCH.md), and [changes](CHANGELOG.md).
+
+## Support and related plugins
+
+[Report issues](https://github.com/ManoloRemiddi/dsh-adaptive-reasoning/issues)
+with your DSH version, model and a synthetic example. Do not include credentials
+or private session logs. Browse the
+[DeepSeek Harness Plugins collection](https://github.com/ManoloRemiddi/deepseek-harness-plugins).
