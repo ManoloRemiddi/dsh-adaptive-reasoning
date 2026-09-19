@@ -2,7 +2,7 @@
 
 # Set up automatic reasoning for your own model
 
-Version 0.2.0 is a preview verified with DSH 0.1.5-rc.1, Cordis 4.0.2 and
+Version 0.2.1 is a preview verified with DSH 0.1.5-rc.1, Cordis 4.0.2 and
 Qwen3.8 27B GSQ. Install Node.js 22.18.0 or newer and a working DSH web
 profile first. Configure and test your model in DSH before adding this plugin.
 The plugin does not download, serve or keep a model loaded.
@@ -13,7 +13,7 @@ The supplied package only acts on the author's exact preset/provider/model IDs.
 For your own setup, create a configured package from the release source:
 
 ```sh
-git clone --branch v0.2.0 --depth 1 https://github.com/ManoloRemiddi/dsh-adaptive-reasoning.git
+git clone --branch main --depth 1 https://github.com/ManoloRemiddi/dsh-adaptive-reasoning.git
 cd dsh-adaptive-reasoning
 ```
 
@@ -42,7 +42,7 @@ cannot establish those controls. This release does not discover capabilities.
 ```sh
 npm test
 npm pack
-dsh plugin --profile web add "$PWD/dsh-adaptive-reasoning-0.2.0.tgz" --ignore-scripts --config.auto-install-peers=false
+dsh plugin --profile web add "$PWD/dsh-adaptive-reasoning-0.2.1.tgz" --ignore-scripts --config.auto-install-peers=false
 ```
 
 No npm install is needed for the dependency-free unit suite or packaging.

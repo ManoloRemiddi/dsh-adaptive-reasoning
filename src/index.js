@@ -51,7 +51,7 @@ export function apply(ctx, rawConfig) {
     if (!config.routes.some(r => r.provider === provider && r.model === model)) return assembled;
     const decision = humanDecision(batch, states.get(agent)?.tier);
     // Do not strip protocol transports or structured-output contributions.
-    const protocol = assembled.tools.some(t => t.name === 'run_code') ||
+    const protocol = assembled.tools.some(t => ['run_code', 'resonant_voice_reply'].includes(t.name)) ||
       assembled.sections.some(s => /ptc|structured|protocol/i.test(s.name));
     if (!decision.textOnly || protocol) return assembled;
     textModes.set(agent, { reason: decision.reason, removedTools: assembled.tools.length });

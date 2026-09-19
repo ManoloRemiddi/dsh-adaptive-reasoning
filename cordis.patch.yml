@@ -12,3 +12,10 @@
               low: low
               medium: medium
               high: xhigh
+          - provider: mx-qwen
+            model: Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k
+            efforts:
+              off: 'off'
+              low: low
+              medium: medium
+              high: xhigh

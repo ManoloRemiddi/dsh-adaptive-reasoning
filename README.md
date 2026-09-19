@@ -1,6 +1,6 @@
 <!-- Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT -->
 
-# DSH Adaptive Reasoning 0.2.0
+# DSH Adaptive Reasoning 0.2.1
 
 Our standalone DeepSeek Harness plugin chooses reasoning automatically for each
 request. It uses the existing model. No per-prompt switches, classifier model,
@@ -14,6 +14,7 @@ local rules; it is not a trained or infallible difficulty estimator.
 
 | Task | Reasoning | Tools |
 | --- | --- | --- |
+| Standalone conversational greeting | Off | Available, including structured voice delivery |
 | Clear rewrite, translation or proofreading with supplied text | Off | Hidden and blocked for that step |
 | Short summary of supplied text | Low | Hidden and blocked for that step |
 | Longer supplied-text summary | Medium | Hidden and blocked for that step |
@@ -29,10 +30,16 @@ Clear text work gets a short instruction to preserve facts, uncertainty and scop
 The plugin does not guarantee semantic correctness or validate every final answer.
 
 The current bundle covers only `augmentor-linux-product` and
-`mx-5090-tray/Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k-dual`. Other tasks and models pass
+`mx-5090-tray/Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k-dual` plus the current
+`mx-qwen/Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k` route. Other presets and models pass
 through. Provider, model, sampling and output allowances are preserved.
 
 ## Installation
+
+For the current 0.2.1 fix, use this source checkout and the `npm pack` instructions
+below. [Greeting/route validation](docs/VALIDATION-0.2.1.md) records its scope.
+The following download is the older 0.2.0 release and lacks the greeting fix.
+
 
 [Download the 0.2.0 preview](https://github.com/ManoloRemiddi/dsh-adaptive-reasoning/releases/tag/v0.2.0)
 or install its ready-made package:
@@ -50,7 +57,7 @@ To package a source checkout instead:
 
 ```sh
 npm pack
-dsh plugin --profile web add /absolute/path/dsh-adaptive-reasoning-0.2.0.tgz --offline --ignore-scripts --config.auto-install-peers=false
+dsh plugin --profile web add /absolute/path/dsh-adaptive-reasoning-0.2.1.tgz --offline --ignore-scripts --config.auto-install-peers=false
 ```
 
 The tarball needs no runtime dependency downloads: it consumes services from the

@@ -52,6 +52,11 @@ export function classify(text, { hasMedia = false, previousTier } = {}) {
   const action = /\b(?:run|execute|install|browse|research|search|verify|fact.check|check (?:the|my|this)|open (?:the|my|this)|send|save|upload|download|create (?:a |the )?(?:file|plugin|app|website))\b/;
   if (action.test(instructions) || (!promptEditing && complex.test(instructions)))
     return decide('high', 'investigation-or-consequential-work');
+  // Match the entire conversational greeting, not a prefix of a real task.
+  // Keep tools: spoken answers still need their structured delivery contract.
+  const greeting = instructions.trim().replaceAll('’', "'").replace(/\s+/g, ' ');
+  if (!parts.hasSource && /^(?:(?:hi|hello|hey)(?: augmentor)?|good (?:morning|afternoon|evening)|how are you(?: doing)?|how(?:'s| is) (?:it|he) going|how(?:'s| is) everything(?: going)?)(?:[,.!? ]+(?:(?:hi|hello|hey)(?: augmentor)?|how are you(?: doing)?|how(?:'s| is) it going))*[.!? ]*$/.test(greeting))
+    return decide('off', 'conversational-greeting', 'conversation');
   if (promptEditing) return parts.hasSource
     ? decide('high', 'prompt-editing-quality-floor', 'prompt-editing', true)
     : decide('high', 'prompt-editing-needs-context');

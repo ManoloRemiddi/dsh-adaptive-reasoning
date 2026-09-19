@@ -2,6 +2,15 @@
 
 # Changes
 
+## 0.2.1 — 2026-09-19
+
+- Add the verified current mx-qwen 262k route alongside the legacy tray route.
+- Disable thinking for complete, standalone English greetings. Additional work,
+  explicit deep reasoning, media and ambiguous follow-ups retain existing rules.
+- Preserve the structured Resonant Voice tool, including for text transformations.
+- Add exact-route DSH/HTTP and real-model greeting verification; log decisions and
+  zero reasoning characters without persisting test prompts into user sessions.
+
 ## 0.2.0 — 2026-09-13
 
 - Separate supplied text from instructions without discarding instructions after

@@ -5,6 +5,19 @@ import { classify } from '../src/policy.js';
 import { apply, validateConfig } from '../src/index.js';
 
 const cases = [
+  ["How's it going?", 'off'],
+  ["How's he going?", 'off'],
+  ['How are you?', 'off'],
+  ['Hello Augmentor! How are you doing?', 'off'],
+  ['Hey, how’s it going?', 'off'],
+  ['Good morning.', 'off'],
+  ['How are you? Also diagnose my server.', 'high'],
+  ['Hello, can you help me decide?', 'high'],
+  ['How is the deployment going?', 'high'],
+  ['How is he doing after surgery?', 'high'],
+  ['Think carefully. How are you?', 'high'],
+  ['Hi. Go ahead.', 'high'],
+  ['"How are you?"', 'high'],
   ['Rewrite the quoted sentence. Keep every fact. Return only the sentence.\n\n"How can we improve the harness architecture?"', 'off'],
   ['You are an expert prompt engineer. Diagnose, rewrite, explain and flag gaps.\n\nHere is my prompt: How can we improve the harness?', 'high'],
   ['Please translate this paragraph into Italian:\n"Security architecture"', 'off'],
@@ -83,6 +96,7 @@ test('protocols and structured outputs are preserved', async () => {
   const f = fixture();
   for (const value of [
     { tools: [{ name: 'run_code' }], sections: [], contexts: [], variables: {} },
+    { tools: [{ name: 'resonant_voice_reply' }], sections: [], contexts: [], variables: {} },
     { tools: [{ name: 'emit_json' }], sections: [{ name: 'structured-output', text: 'Use emit_json' }], contexts: [], variables: {} },
   ]) {
     f.claim('Rewrite the text.\n"Hello."');
@@ -158,4 +172,18 @@ test('passive measurement stores numbers, not generated content', async () => {
   assert.equal(m.attempts, 1);
   assert.equal(m.finish, 'stop');
   assert.equal(JSON.stringify(f.events).includes('PRIVATE'), false);
+});
+
+test('greetings disable thinking without removing structured voice tools', async () => {
+  const f = fixture();
+  const assembled = { tools: [{ name: 'resonant_voice_reply' }], sections: [], contexts: [], variables: {} };
+  f.claim("How's it going?");
+  assert.equal(await f.assembly(assembled), assembled);
+  assert.equal(f.guard({ agent: f.agent }), undefined);
+  await f.pre([human("How's it going?")]);
+  assert.equal((await f.request()).reasoningEffort, 'off');
+  assert.equal(f.events.at(-1).data.textOnly, false);
+  await f.pre([human('Diagnose the server failure.')], 2);
+  assert.equal((await f.request(2)).reasoningEffort, 'xhigh');
+  assert.equal(classify('Hi', { hasMedia: true }).tier, 'high');
 });
