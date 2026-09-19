@@ -57,3 +57,13 @@ close/reopen used to release an idle voice connection before DSH restarts. No GP
 model server, voice model, memory contents or saved thinking defaults are changed.
 A session's adaptive decision/measurement events identify its actual per-request
 choice; the saved picker selection is not that effective choice.
+
+Installed verification: source `b69195a` was packaged and installed through the
+DSH CLI after all 687 listed sessions reported idle and native maintenance allowed
+graceful close. The installed source/config hashes match, the composed profile
+contains exactly one adaptive mount with both routes, and unrelated dependency
+declarations and bundle order are unchanged. DSH's product endpoint returned 200,
+native model readiness returned true, and the draft was restored. The separate
+voice and GPU model services were not restarted. The next real conversation will
+produce its own decision/measurement records; no synthetic test was inserted into
+the user's chat to manufacture a post-deployment latency claim.
