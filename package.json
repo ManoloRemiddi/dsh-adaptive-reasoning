@@ -1,6 +1,6 @@
 {
   "name": "dsh-adaptive-reasoning",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Conservative per-request reasoning selection for DeepSeek Harness, with no classifier model calls",
   "type": "module",
   "main": "src/index.js",

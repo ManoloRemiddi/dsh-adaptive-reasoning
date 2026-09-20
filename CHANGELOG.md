@@ -2,6 +2,13 @@
 
 # Changes
 
+## 0.2.3 — 20 September 2026
+
+- Ship empty reasoning routes instead of developer-specific provider/model defaults.
+- Preserve the 0.2.2 sidecar/cold-history fix and correct the setup instructions.
+- Exercise explicit fixture routes without depending on the shipped allowlist.
+
+
 ## 0.2.1 — 2026-09-19
 
 - Add the verified current mx-qwen 262k route alongside the legacy tray route.

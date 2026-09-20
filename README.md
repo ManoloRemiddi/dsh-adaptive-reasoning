@@ -1,6 +1,6 @@
 <!-- Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT -->
 
-# DSH Adaptive Reasoning 0.2.2
+# DSH Adaptive Reasoning 0.2.3
 
 Our standalone DeepSeek Harness plugin chooses reasoning automatically for each
 request. It uses the existing model. No per-prompt switches, classifier model,
@@ -29,36 +29,23 @@ requirements in evaluation. We did not promote that task family on latency alone
 Clear text work gets a short instruction to preserve facts, uncertainty and scope.
 The plugin does not guarantee semantic correctness or validate every final answer.
 
-The current bundle covers only `augmentor-linux-product` and
-`mx-5090-tray/Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k-dual` plus the current
-`mx-qwen/Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k` route. Other presets and models pass
-through. Provider, model, sampling and output allowances are preserved.
+The current bundle starts with empty routes for the Augmentor desktop and browser
+presets. It never assumes the developer's model or hardware. Configure a verified
+provider/model/effort mapping once; other routes pass through unchanged.
 
 ## Installation
 
-For the current 0.2.2 fix, use this source checkout and the `npm pack` instructions
-below. [Greeting/route validation](docs/VALIDATION-0.2.2.md) records its scope.
-The following download is the older 0.2.0 release and lacks the greeting fix.
-
-
-[Download the 0.2.0 preview](https://github.com/ManoloRemiddi/dsh-adaptive-reasoning/releases/tag/v0.2.0)
-or install its ready-made package:
-
-```sh
-dsh plugin --profile web add https://github.com/ManoloRemiddi/dsh-adaptive-reasoning/releases/download/v0.2.0/dsh-adaptive-reasoning-0.2.0.tgz --ignore-scripts --config.auto-install-peers=false
-```
-
-**Configuration is required on other installations.** The shipped allowlist is
-specific to the tested Augmentor preset and Qwen route. It does nothing for other
-presets/models until configured. See [setup for your own model](docs/SETUP.md).
-This is a preview, not a universal automatic difficulty estimator.
-
-To package a source checkout instead:
+The 0.2.3 preview includes the 0.2.2 cold-history correction and neutral defaults.
+Package this source checkout, or use the matching complete Augmentor bundle:
 
 ```sh
 npm pack
-dsh plugin --profile web add /absolute/path/dsh-adaptive-reasoning-0.2.2.tgz --offline --ignore-scripts --config.auto-install-peers=false
+dsh plugin --profile web add /absolute/path/dsh-adaptive-reasoning-0.2.3.tgz --ignore-scripts --config.auto-install-peers=false
 ```
+
+See [setup for your own model](docs/SETUP.md). Model-specific configuration is
+required before automatic effort changes are enabled; installing the plugin
+alone does not alter your selected model or its reasoning settings.
 
 The tarball needs no runtime dependency downloads: it consumes services from the
 installed DSH host. CLI installation adds its bundle once. New bundle manifests

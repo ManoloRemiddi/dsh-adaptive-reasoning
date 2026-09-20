@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-const tarball = resolve(process.argv[2] ?? 'dsh-adaptive-reasoning-0.2.2.tgz');
+const tarball = resolve(process.argv[2] ?? 'dsh-adaptive-reasoning-0.2.3.tgz');
 const home = mkdtempSync(join(tmpdir(), 'dsh-adaptive-install-'));
 const env = { ...process.env, DSH_HOME: home };
 function run(args) {
@@ -19,12 +19,13 @@ try {
   const manifest = JSON.parse(readFileSync(join(path, 'package.json'), 'utf8'));
   assert.equal(manifest.dsh.profile.bundles.filter(n => n === 'dsh-adaptive-reasoning').length, 1);
   const installed = JSON.parse(readFileSync(join(path, 'node_modules/dsh-adaptive-reasoning/package.json'), 'utf8'));
-  assert.equal(installed.version, '0.2.2');
+  assert.equal(installed.version, '0.2.3');
   const composition = run(['--profile', 'web', '--dump-config']);
   assert.ok(composition.includes('adaptive-reasoning'));
   assert.ok(composition.includes('augmentor-linux-product'));
-  assert.ok(composition.includes('mx-qwen'));
-  assert.ok(composition.includes('Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k'));
+  assert.ok(!composition.includes('mx-qwen'));
+  assert.ok(!composition.includes('Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k'));
+  assert.ok(composition.includes('augmentor-browser-product'));
   run(['plugin', '--profile', 'web', 'remove', 'dsh-adaptive-reasoning', '--config.ignore-scripts=true', '--config.auto-install-peers=false']);
   const removed = JSON.parse(readFileSync(join(path, 'package.json'), 'utf8'));
   assert.equal(removed.dsh.profile.bundles.includes('dsh-adaptive-reasoning'), false);

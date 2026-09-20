@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 const telemetryTemp = mkdtempSync(tmpdir() + '/adaptive-telemetry-test-');
 process.env.XDG_STATE_HOME = telemetryTemp;
 process.on('exit', () => rmSync(telemetryTemp, { recursive: true, force: true }));
-// Exact shipped route + real DSH/structured voice contract, isolated from user chats.
+// Explicit fixture route + real DSH/structured voice contract, isolated from user chats.
 import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
 import {homedir} from 'node:os';
@@ -17,10 +17,12 @@ import * as plugin from '../src/index.js';
 const req=createRequire(join(process.env.DSH_INSTALL_ROOT??join(homedir(),'.local/node/lib/node_modules/@deepseek-ai/dsh'),'package.json'));
 const load=async name=>import(pathToFileURL(req.resolve('@deepseek-ai/'+name)).href);
 const config=req('js-yaml').load(readFileSync(new URL('../cordis.patch.yml',import.meta.url),'utf8'))[0].insert[0].config;
-const route=config.routes.find(r=>r.provider==='mx-qwen'&&r.model==='Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp-262k');assert.ok(route);
 const live=process.env.ADAPTIVE_LIVE_TEST==='1';
+if(live && (!process.env.ADAPTIVE_TEST_PROVIDER || !process.env.ADAPTIVE_TEST_MODEL))throw Error('Live checks require explicit ADAPTIVE_TEST_PROVIDER and ADAPTIVE_TEST_MODEL.');
+const route={provider:process.env.ADAPTIVE_TEST_PROVIDER??'fixture',model:process.env.ADAPTIVE_TEST_MODEL??'fixture-qwen',efforts:{off:'off',low:'low',medium:'medium',high:'xhigh'}};
+config.routes=[route];
 const {Context}=await load('cordis');const {createUserMessage}=await load('dsh-llm');
-const {responseTool}=await import(pathToFileURL(join(homedir(),'.dsh/profiles/web/node_modules/dsh-resonant-voice/src/delivery.js')).href);
+const {responseTool}=await import(pathToFileURL(process.env.RESONANT_VOICE_DELIVERY_MODULE??join(homedir(),'.dsh/profiles/web/node_modules/dsh-resonant-voice/src/delivery.js')).href);
 const ctx=new Context();const calls=[];const errors=[];ctx.on('agent/error',({error})=>errors.push(String(error)));
 const server=createServer(async(req,res)=>{
  let body='';for await(const c of req)body+=c;calls.push(JSON.parse(body));

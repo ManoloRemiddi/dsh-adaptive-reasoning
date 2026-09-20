@@ -2,14 +2,14 @@
 
 # Set up automatic reasoning for your own model
 
-Version 0.2.1 is a preview verified with DSH 0.1.5-rc.1, Cordis 4.0.2 and
+Version 0.2.3 is a preview verified with DSH 0.1.5-rc.1, Cordis 4.0.2 and
 Qwen3.8 27B GSQ. Install Node.js 22.18.0 or newer and a working DSH web
 profile first. Configure and test your model in DSH before adding this plugin.
 The plugin does not download, serve or keep a model loaded.
 
 ## One-time configuration
 
-The supplied package only acts on the author's exact preset/provider/model IDs.
+The supplied package has an empty route list and does not alter model effort until you configure a verified route. It contains no machine-specific provider/model defaults.
 For your own setup, create a configured package from the release source:
 
 ```sh
@@ -42,14 +42,14 @@ cannot establish those controls. This release does not discover capabilities.
 ```sh
 npm test
 npm pack
-dsh plugin --profile web add "$PWD/dsh-adaptive-reasoning-0.2.1.tgz" --ignore-scripts --config.auto-install-peers=false
+dsh plugin --profile web add "$PWD/dsh-adaptive-reasoning-0.2.3.tgz" --ignore-scripts --config.auto-install-peers=false
 ```
 
 No npm install is needed for the dependency-free unit suite or packaging.
 Use your actual profile name if different from `web`. Finish running tasks,
 restart the existing DSH process, then reload its web page. Keep just one
 installation and one bundle registration. Preserve your configured source for
-future upgrades; a stock download carries the author's allowlist again.
+future upgrades; keep your route configuration in your private DSH profile instead of relying on package defaults.
 
 This is one-time setup. Each subsequent prompt is routed automatically; the
 saved model picker can continue to show its original effort setting.
@@ -57,9 +57,9 @@ saved model picker can continue to show its original effort setting.
 ## Check that it works
 
 Try a small synthetic request such as `Rewrite this politely: "Send the file."`.
-The participating session should contain `adaptive-reasoning/decision` with
-effort off, followed by `adaptive-reasoning/measurement`. Inspect `request/header`
-for the actual effort. `npm run report` summarizes existing logs without inference;
+The private diagnostics sidecar records the decision and measurement. Inspect
+`request/header` in the session for the actual effort. Diagnostic events are
+never appended to the conversation replay log (fixed in 0.2.2). `npm run report` summarizes existing logs without inference;
 it requires the `zstd` utility to read compressed session logs.
 
 If there are no decision records, check the preset/provider/model IDs and restart
