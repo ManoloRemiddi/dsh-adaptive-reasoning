@@ -1,4 +1,10 @@
 // Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT
+import { recordsFor } from '../src/telemetry.js';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+const telemetryTemp = mkdtempSync(tmpdir() + '/adaptive-telemetry-test-');
+process.env.XDG_STATE_HOME = telemetryTemp;
+process.on('exit', () => rmSync(telemetryTemp, { recursive: true, force: true }));
 // Opt-in finite validation through the real DSH loop; no real tools are registered.
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
@@ -62,7 +68,7 @@ try {
       if (events.at(-1)?.type !== 'turn/end' || events.at(-1).data.reason.kind !== 'completed') failures.push('Did not complete normally');
       const report = { id: c.id, mode, elapsedMs: Math.round(performance.now() - start), answer, failures,
         effort: a.session.requestHeader()?.config.reasoningEffort,
-        measurements: events.filter(e => e.type === 'adaptive-reasoning/measurement').map(e => e.data) };
+        measurements: recordsFor(a.session).filter(e => e.type === 'adaptive-reasoning/measurement').map(e => e.data) };
       reports.push(report);
       writeFileSync(output, JSON.stringify(reports, null, 2), { mode: 0o600 });
       console.log(JSON.stringify({ ...report, answer: undefined }));

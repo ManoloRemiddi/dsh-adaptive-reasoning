@@ -5,6 +5,8 @@ import { readdir, stat, readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { telemetryPath } from '../src/telemetry.js';
+import { existsSync } from 'node:fs';
 
 const root = process.argv[2] ?? join(homedir(), '.dsh/sessions');
 async function files(dir) {
@@ -16,7 +18,7 @@ async function files(dir) {
   }
   return result;
 }
-const candidates = await files(root);
+const candidates = process.argv[2] ? await files(root) : [telemetryPath(), telemetryPath()+'.1'].filter(existsSync);
 const dated = await Promise.all(candidates.map(async path => ({ path, time: (await stat(path)).mtimeMs })));
 const buckets = new Map();
 let unreadable = 0;
@@ -35,7 +37,7 @@ for (const { path } of dated.sort((a, b) => b.time - a.time).slice(0, 100)) {
     buckets.get(m.tier).push(m);
   }
 }
-console.log('Adaptive reasoning: measurements in the 100 most recently modified session files');
+console.log('Adaptive reasoning: passive measurements (separate diagnostics by default)');
 if (!buckets.size) console.log('No measurements yet. The plugin may be awaiting reload, or no configured task has run.');
 else {
   const median = values => { const sorted = values.sort((a, b) => a - b); const i = Math.floor(sorted.length / 2); return sorted.length % 2 ? sorted[i] : (sorted[i - 1] + sorted[i]) / 2; };

@@ -1,4 +1,10 @@
 // Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT
+import { recordsFor } from '../src/telemetry.js';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+const telemetryTemp = mkdtempSync(tmpdir() + '/adaptive-telemetry-test-');
+process.env.XDG_STATE_HOME = telemetryTemp;
+process.on('exit', () => rmSync(telemetryTemp, { recursive: true, force: true }));
 // Exact shipped route + real DSH/structured voice contract, isolated from user chats.
 import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
@@ -41,10 +47,10 @@ try {
    a.followup(createUserMessage({content:[{type:'text',text}],source:{kind:'user',rpcId:'resonant-voice:synthetic'}}));await a.whenIdle();
   }
   assert.deepEqual(errors,[]);
-  const events=a.session.snapshotEvents();const decisions=events.filter(e=>e.type==='adaptive-reasoning/decision').map(e=>e.data);
+  const events=a.session.snapshotEvents();const decisions=recordsFor(a.session).filter(e=>e.type==='adaptive-reasoning/decision').map(e=>e.data);
   assert.deepEqual(decisions.map(d=>d.effort),live?['off']:['off','xhigh']);assert.ok(decisions.every(d=>!d.textOnly));
   const replies=events.filter(e=>e.type==='tool/result'&&e.data.meta?.resonantVoice);assert.equal(replies.length,live?1:2);
-  const measurements=events.filter(e=>e.type==='adaptive-reasoning/measurement').map(e=>e.data);
+  const measurements=recordsFor(a.session).filter(e=>e.type==='adaptive-reasoning/measurement').map(e=>e.data);
   assert.equal(measurements[0].reasoningCharacters,0);
   if(!live){assert.equal(calls.length,2);assert.deepEqual(calls.map(c=>c.chat_template_kwargs.enable_thinking),[false,true]);assert.ok(calls.every(c=>c.tools.some(t=>t.function.name==='resonant_voice_reply')));}
   console.log(JSON.stringify({live,efforts:decisions.map(d=>d.effort),structuredReplies:replies.length,measurements:measurements.map(({durationMs,reasoningCharacters})=>({durationMs,reasoningCharacters}))}));

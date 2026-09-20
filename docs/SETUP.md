@@ -78,3 +78,11 @@ dsh plugin --profile web remove dsh-adaptive-reasoning --config.ignore-scripts=t
 Restart DSH after removal. The plugin does not change your saved model selection
 or GPU settings. Its rules use CPU string processing, with no classifier call,
 keep-alive request or recurring job.
+
+
+### Upgrade from 0.2.1
+
+Install 0.2.2 and reload DSH only when its sessions and voice are idle. Existing
+legacy diagnostic records require a backed-up history repair; see
+[0.2.2 validation](VALIDATION-0.2.2.md). New decision and measurement records are
+in the private sidecar, not in participating conversation logs.

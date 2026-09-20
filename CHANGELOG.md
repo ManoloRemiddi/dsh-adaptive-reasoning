@@ -34,3 +34,12 @@
 Experimental automatic effort routing and text-only handling. Real model
 comparisons found strong latency improvement for rewriting, but prompt editing
 at low reasoning did not pass the no-new-requirements quality gate.
+
+
+## 0.2.2 — 20 September 2026
+
+- Fix cold-restart failures by removing custom diagnostic writes from DSH session
+  logs. Keep diagnostics in a private, bounded sidecar; retain normal request headers.
+- Add real compressed persistence and a separate-process reopening check with the
+  plugin absent, alongside the existing deterministic agent/voice integration tests.
+- Keep diagnostic storage failures from breaking turns. Update report and install proof.

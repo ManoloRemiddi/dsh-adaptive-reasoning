@@ -1,6 +1,6 @@
 <!-- Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT -->
 
-# DSH Adaptive Reasoning 0.2.1
+# DSH Adaptive Reasoning 0.2.2
 
 Our standalone DeepSeek Harness plugin chooses reasoning automatically for each
 request. It uses the existing model. No per-prompt switches, classifier model,
@@ -36,8 +36,8 @@ through. Provider, model, sampling and output allowances are preserved.
 
 ## Installation
 
-For the current 0.2.1 fix, use this source checkout and the `npm pack` instructions
-below. [Greeting/route validation](docs/VALIDATION-0.2.1.md) records its scope.
+For the current 0.2.2 fix, use this source checkout and the `npm pack` instructions
+below. [Greeting/route validation](docs/VALIDATION-0.2.2.md) records its scope.
 The following download is the older 0.2.0 release and lacks the greeting fix.
 
 
@@ -57,7 +57,7 @@ To package a source checkout instead:
 
 ```sh
 npm pack
-dsh plugin --profile web add /absolute/path/dsh-adaptive-reasoning-0.2.1.tgz --offline --ignore-scripts --config.auto-install-peers=false
+dsh plugin --profile web add /absolute/path/dsh-adaptive-reasoning-0.2.2.tgz --offline --ignore-scripts --config.auto-install-peers=false
 ```
 
 The tarball needs no runtime dependency downloads: it consumes services from the
@@ -81,7 +81,7 @@ Auto badge; `request/header` records the actual effort used.
 
 Every participating model request records a reason in
 `adaptive-reasoning/decision`, then timing and character counts in
-`adaptive-reasoning/measurement`. These events copy no prompt or answer text.
+`adaptive-reasoning/measurement`. These sidecar records copy no prompt or answer text.
 They measure time from request preparation, not from clicking Send, and do not
 measure electricity. Cancelled requests may lack a completed measurement.
 
@@ -91,7 +91,8 @@ To read a summary from existing logs:
 npm run report
 ```
 
-The report inspects the 100 most recently modified session files, performs no
+By default the report reads the current and previous sidecar files. An explicit
+session-folder argument reads up to 100 historical session files. It performs no
 inference and runs only when requested. Task mix and server load affect the results.
 
 ## Configuration
@@ -142,3 +143,24 @@ See [0.2 validation](docs/VALIDATION-0.2.md),
 with your DSH version, model and a synthetic example. Do not include credentials
 or private session logs. Browse the
 [DeepSeek Harness Plugins collection](https://github.com/ManoloRemiddi/deepseek-harness-plugins).
+
+
+## Restart reliability — 0.2.2
+
+Version 0.2.1 wrote custom diagnostic events into DSH conversation logs. DSH
+0.1.5-rc.1 accepted them in memory but refused to reopen them after restart.
+Its public `Session.append()` also drops an `ignorable` option, so adding that
+option at the call site would not fix persistence.
+
+0.2.2 writes these diagnostics separately under
+`$XDG_STATE_HOME/dsh-adaptive-reasoning/telemetry.jsonl` (default
+`~/.local/state/`). The private log rotates at 5 MiB and retains one prior file.
+It records identifiers, routing choices, timings and counts, never prompts or
+answers. Diagnostic write failures cannot fail a conversation. Routing, model
+selection, context size and GPU placement are unchanged.
+
+`npm run report` now reads the separate diagnostic files. An explicit sessions
+folder argument remains available for historical measurements. Existing affected
+histories need the narrowly scoped backed-up repair described in
+[restart validation](docs/VALIDATION-0.2.2.md); updating the plugin alone does not
+repair previously written events.

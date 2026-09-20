@@ -1,11 +1,18 @@
 // Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT
+import { recordsFor } from '../src/telemetry.js';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+const telemetryTemp = mkdtempSync(tmpdir() + '/adaptive-telemetry-test-');
+process.env.XDG_STATE_HOME = telemetryTemp;
+process.on('exit', () => rmSync(telemetryTemp, { recursive: true, force: true }));
 // Runs the installed, pinned DSH loop in memory with a deterministic adapter.
 import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
+import { spawnSync } from 'node:child_process';
 import * as plugin from '../src/index.js';
 const req = createRequire(join(process.env.DSH_INSTALL_ROOT ?? join(homedir(), '.local/node/lib/node_modules/@deepseek-ai/dsh'), 'package.json'));
 assert.equal(req('./package.json').version, '0.1.5-rc.1');
@@ -30,9 +37,9 @@ const server = createServer(async (request, response) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 process.env.DSH_ADAPTIVE_TEST_KEY = 'test-only';
 try {
-  for (const name of ['dsh-session-projection', 'dsh-session', 'dsh-llm', 'dsh-system-prompt', 'dsh-tools', 'dsh-agent', 'dsh-agent-loop']) {
+  for (const name of ['dsh-session-projection', 'dsh-session', 'dsh-session-persistence-jsonl', 'dsh-llm', 'dsh-system-prompt', 'dsh-tools', 'dsh-agent', 'dsh-agent-loop']) {
     const mod = await load(name);
-    await ctx.plugin(mod.default ?? mod, name === 'dsh-agent-loop' ? { agents: [] } : {}).await();
+    await ctx.plugin(mod.default ?? mod, name === 'dsh-agent-loop' ? { agents: [] } : name === 'dsh-session-persistence-jsonl' ? { root: join(telemetryTemp, 'sessions') } : {}).await();
   }
   await ctx.plugin(await load('dsh-llm-pi-ai'), { providers: { local: {
     api: 'openai-completions', baseURL: `http://127.0.0.1:${server.address().port}/v1`,
@@ -65,7 +72,7 @@ try {
   assert.deepEqual(agent.session.snapshotEvents().filter(e => e.type === 'request/header').map(e => e.data.header.config.reasoningEffort), ['off', 'xhigh', 'xhigh']);
   assert.equal(agent.options.reasoningEffort, 'xhigh');
   assert.equal(calls.length, 3, 'no classifier model calls');
-  assert.equal(agent.session.snapshotEvents().filter(e => e.type === 'adaptive-reasoning/measurement').length, 3);
+  assert.equal(recordsFor(agent.session).filter(e => e.type === 'adaptive-reasoning/measurement').length, 3);
   assert.ok(calls[1].messages.some(m => ['system', 'developer'].includes(m.role) && m.content.includes('You are editing the supplied prompt')));
   const second = await ctx.agents.create({ sessionId: 'adaptive-parallel', meta: { agentPreset: 'linux' }, agentOptions: { provider: 'local', model: 'qwen', reasoningEffort: 'xhigh' } });
   const send = (a, text) => a.followup(createUserMessage({ content: [{ type: 'text', text }], source: { kind: 'user' } }));
@@ -73,7 +80,7 @@ try {
   send(agent, 'Explain the architecture of a compiler.');
   await Promise.all([agent.whenIdle(), second.agent.whenIdle()]);
   assert.equal(executed, 0, 'text-only guard must prevent invented actions');
-  const decisions = second.agent.session.snapshotEvents().filter(e => e.type === 'adaptive-reasoning/decision');
+  const decisions = recordsFor(second.agent.session).filter(e => e.type === 'adaptive-reasoning/decision');
   assert.deepEqual(decisions.map(e => e.data.tier), ['off', 'high']);
   assert.deepEqual(decisions.map(e => e.data.textOnly), [true, false]);
   assert.equal(agent.session.requestHeader().config.reasoningEffort, 'xhigh', 'other agent retains independent depth');
@@ -85,6 +92,10 @@ try {
   assert.deepEqual(errors, []);
   await second.dispose();
   await handle.dispose();
+  await ctx.fiber.dispose();
+  const cold = spawnSync(process.execPath, [fileURLToPath(new URL('./cold-read.mjs', import.meta.url)), join(telemetryTemp, 'sessions')], { encoding: 'utf8' });
+  assert.equal(cold.status, 0, cold.stderr);
+  console.log(cold.stdout.trim());
   console.log('PASS: real DSH 0.1.5-rc.1 loop and pi-ai adapter, downstream model selection, sequential and concurrent turns, verified HTTP thinking parameters, durable timing records, tool-guard recovery and clean removal.');
 } finally {
   await ctx.fiber.dispose();

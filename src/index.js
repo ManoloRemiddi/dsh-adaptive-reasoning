@@ -1,5 +1,6 @@
 // Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT
 import { classify, atLeast, TIERS, editingGuidance } from './policy.js';
+import { record } from './telemetry.js';
 
 export const name = 'adaptive-reasoning';
 export const inject = ['agents', 'tools'];
@@ -99,7 +100,7 @@ export function apply(ctx, rawConfig) {
     const effort = route.efforts[state.tier];
     measurements.set(agent, { turn, step, tier: state.tier, started: performance.now(), firstTextMs: null,
       reasoningCharacters: 0, answerCharacters: 0, attempts: 0 });
-    agent.session.append('adaptive-reasoning/decision', {
+    record(agent.session, 'adaptive-reasoning/decision', {
       version: 2, turn, step, tier: state.tier, effort, reason: state.reason, family: state.family ?? 'general',
       provider: proposed.provider, model: proposed.model,
       previousEffort: proposed.reasoningEffort ?? null,
@@ -125,7 +126,7 @@ export function apply(ctx, rawConfig) {
       }
     }
     if (frame.type === 'end') {
-      agent.session.append('adaptive-reasoning/measurement', {
+      record(agent.session, 'adaptive-reasoning/measurement', {
         version: 1, turn: m.turn, step: m.step, tier: m.tier,
         durationMs: Math.round(performance.now() - m.started), firstTextMs: m.firstTextMs,
         reasoningCharacters: m.reasoningCharacters, answerCharacters: m.answerCharacters,

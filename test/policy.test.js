@@ -1,4 +1,10 @@
 // Copyright © 2026 Manolo Remiddi · SPDX-License-Identifier: MIT
+import { recordsFor } from '../src/telemetry.js';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+const telemetryTemp = mkdtempSync(tmpdir() + '/adaptive-telemetry-test-');
+process.env.XDG_STATE_HOME = telemetryTemp;
+process.on('exit', () => rmSync(telemetryTemp, { recursive: true, force: true }));
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { classify } from '../src/policy.js';
@@ -149,7 +155,20 @@ test('decision records contain no prompt text', async () => {
   const f = fixture();
   await f.pre([human('Rewrite the quoted text.\n"PRIVATE_PAYLOAD_42"')]);
   await f.request();
-  assert.equal(JSON.stringify(f.events).includes('PRIVATE_PAYLOAD_42'), false);
+  assert.equal(JSON.stringify(recordsFor(f.agent.session)).includes('PRIVATE_PAYLOAD_42'), false);
+});
+test('diagnostic storage failure cannot block a turn or write custom session events', async () => {
+  const previous = process.env.XDG_STATE_HOME;
+  const blocked = telemetryTemp + '/not-a-directory';
+  writeFileSync(blocked, 'fixture');
+  process.env.XDG_STATE_HOME = blocked;
+  try {
+    const f = fixture();
+    await f.pre([human('Rewrite: Hello.')]);
+    assert.equal((await f.request()).reasoningEffort, 'off');
+    assert.equal(f.events.length, 0);
+    assert.equal(recordsFor(f.agent.session).length, 1);
+  } finally { process.env.XDG_STATE_HOME = previous; }
 });
 test('bad configuration fails at load, disabled plugin registers nothing', () => {
   assert.throws(() => validateConfig({ routes: [{}] }));
@@ -166,12 +185,12 @@ test('passive measurement stores numbers, not generated content', async () => {
   stream({ type: 'chunk', chunk: { type: 'text-delta', text: 'PRIVATE_ANSWER' } });
   stream({ type: 'chunk', chunk: { type: 'finish', reason: 'stop' } });
   stream({ type: 'end', outcome: { kind: 'committed' } });
-  const m = f.events.find(e => e.type === 'adaptive-reasoning/measurement').data;
+  const m = recordsFor(f.agent.session).find(e => e.type === 'adaptive-reasoning/measurement').data;
   assert.equal(m.answerCharacters, 14);
   assert.equal(m.reasoningCharacters, 14);
   assert.equal(m.attempts, 1);
   assert.equal(m.finish, 'stop');
-  assert.equal(JSON.stringify(f.events).includes('PRIVATE'), false);
+  assert.equal(JSON.stringify(recordsFor(f.agent.session)).includes('PRIVATE'), false);
 });
 
 test('greetings disable thinking without removing structured voice tools', async () => {
@@ -182,7 +201,7 @@ test('greetings disable thinking without removing structured voice tools', async
   assert.equal(f.guard({ agent: f.agent }), undefined);
   await f.pre([human("How's it going?")]);
   assert.equal((await f.request()).reasoningEffort, 'off');
-  assert.equal(f.events.at(-1).data.textOnly, false);
+  assert.equal(recordsFor(f.agent.session).at(-1).data.textOnly, false);
   await f.pre([human('Diagnose the server failure.')], 2);
   assert.equal((await f.request(2)).reasoningEffort, 'xhigh');
   assert.equal(classify('Hi', { hasMedia: true }).tier, 'high');
