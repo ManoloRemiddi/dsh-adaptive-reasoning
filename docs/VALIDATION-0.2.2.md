@@ -30,7 +30,7 @@ continues to appear in DSH's standard `request/header` events.
   before/after. Backups remain private on the installation.
 
 Existing malformed histories are not repaired by package installation itself.
-Use Augmentor's recovery implementation and its [incident guide](https://github.com/ManoloRemiddi/augmentor-agent/blob/productization/shared-memory-and-desktop/docs/RESTART-RELIABILITY-2026-09-20.md).
+Use Augmentor's recovery implementation and its [incident guide](https://github.com/ManoloRemiddi/augmentor-agent/blob/main/docs/RESTART-RELIABILITY-2026-09-20.md).
 Do not delete custom events or disable DSH's validation globally.
 
 The installed desktop/backend restart drills are documented in that incident
