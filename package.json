@@ -1,6 +1,6 @@
 {
   "name": "dsh-adaptive-reasoning",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Conservative per-request reasoning selection for DeepSeek Harness, with no classifier model calls",
   "type": "module",
   "main": "src/index.js",
@@ -26,8 +26,8 @@
     "test:install": "node test/install-proof.mjs"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "4.0.2",
-    "@deepseek-ai/dsh-agent": "0.1.5-rc.1"
+    "@deepseek-ai/cordis": "4.0.2 || 4.0.4",
+    "@deepseek-ai/dsh-agent": "0.1.5-rc.1 || 0.2.0-rc.2"
   },
   "dsh": {
     "bundle": {

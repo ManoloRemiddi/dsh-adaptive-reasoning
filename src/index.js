@@ -82,7 +82,7 @@ export function apply(ctx, rawConfig) {
     }
     const recent = agent.session.snapshotEvents(Math.max(0, agent.session.seq - 64));
     const failed = recent.some(e => e.type === 'tool/result' && e.data.turn === turn &&
-      (e.data.error !== undefined || e.data.message?.content?.some(b => b.type === 'tool-result' && b.isError)));
+      (e.data.error !== undefined || e.data.message?.isError === true || e.data.message?.content?.some(b => b.type === 'tool-result' && b.isError)));
     if (failed) state = { ...state, tier: 'high', reason: 'tool-failure' };
     states.set(agent, state);
     return admitted;
