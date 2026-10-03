@@ -2,6 +2,13 @@
 
 # DSH Adaptive Reasoning 0.2.3
 
+## DSH 0.2 compatibility (0.2.4)
+
+Accept first-class tool-role errors alongside the legacy wrapped result. Both DSH 0.1.5-rc.1/Cordis 4.0.2 and DSH 0.2.0-rc.2/Cordis 4.0.4 are explicit peers. Request-scoped policy, budget and greeting behavior remain unchanged.
+
+October 3 qualification: old/new real DSH lifecycle fixtures pass. Speech/model endpoints are deterministic fixtures in these tests; local speech hardware acceptance is separate. Existing installations should migrate their actual mounted package and preserve history before upgrading the harness. See [Augmentor migration](https://github.com/ManoloRemiddi/augmentor-agent/blob/compat/dsh-0.2.0/docs/DSH-0.2-COMPATIBILITY.md). npm publication and installed adoption must be reported separately from source changes.
+
+
 Our standalone DeepSeek Harness plugin chooses reasoning automatically for each
 request. It uses the existing model. No per-prompt switches, classifier model,
 background inference, GPU warm-up, power-setting changes or recurring jobs.

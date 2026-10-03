@@ -15,7 +15,7 @@ import { createServer } from 'node:http';
 import { spawnSync } from 'node:child_process';
 import * as plugin from '../src/index.js';
 const req = createRequire(join(process.env.DSH_INSTALL_ROOT ?? join(homedir(), '.local/node/lib/node_modules/@deepseek-ai/dsh'), 'package.json'));
-assert.equal(req('./package.json').version, '0.1.5-rc.1');
+assert.ok(['0.1.5-rc.1', '0.2.0-rc.2'].includes(req('./package.json').version));
 const load = async name => import(pathToFileURL(req.resolve('@deepseek-ai/' + name)).href);
 const { Context } = await load('cordis');
 const { createUserMessage } = await load('dsh-llm');
@@ -96,7 +96,7 @@ try {
   const cold = spawnSync(process.execPath, [fileURLToPath(new URL('./cold-read.mjs', import.meta.url)), join(telemetryTemp, 'sessions')], { encoding: 'utf8' });
   assert.equal(cold.status, 0, cold.stderr);
   console.log(cold.stdout.trim());
-  console.log('PASS: real DSH 0.1.5-rc.1 loop and pi-ai adapter, downstream model selection, sequential and concurrent turns, verified HTTP thinking parameters, durable timing records, tool-guard recovery and clean removal.');
+  console.log(`PASS: real DSH ${req('./package.json').version} loop and pi-ai adapter, downstream model selection, sequential and concurrent turns, verified HTTP thinking parameters, durable timing records, tool-guard recovery and clean removal.`);
 } finally {
   await ctx.fiber.dispose();
   await new Promise(resolve => server.close(resolve));

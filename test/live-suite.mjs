@@ -16,7 +16,7 @@ import * as plugin from '../src/index.js';
 
 if (process.env.ADAPTIVE_LIVE_TEST !== '1') throw new Error('Set ADAPTIVE_LIVE_TEST=1 for finite local inference tests');
 const req = createRequire(join(process.env.DSH_INSTALL_ROOT ?? join(homedir(), '.local/node/lib/node_modules/@deepseek-ai/dsh'), 'package.json'));
-assert.equal(req('./package.json').version, '0.1.5-rc.1');
+assert.ok(['0.1.5-rc.1', '0.2.0-rc.2'].includes(req('./package.json').version));
 const load = async name => import(pathToFileURL(req.resolve('@deepseek-ai/' + name)).href);
 const { Context } = await load('cordis');
 const { createUserMessage } = await load('dsh-llm');
